@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 
-import sys, subprocess, requests, json
+import os, sys, subprocess, requests, json
 
+from dotenv import load_dotenv
 from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from font_intuitive import Intuitive
 from inky.auto import auto
 
 def format_number(num):
-	num = num.replace(',', '')
+	num = num.replace(',', '').replace('.', '')
 	value = int(num)
 	if value >= 1000000:
-		return f"{value/1000000:.1f}M"
+		return f"{value/1000000:.1f} M"
 	elif value >= 1000:
-		return f"{value/1000:.1f}K"
+		return f"{value/1000:.1f} K"
 	else:
 		return str(value)
 
 def get_pihole():
 	try:
-		response = requests.get("http://swan.dharma:54321/admin/api.php?auth=831d4b7d3a5ae74f6e17fd8ddf3c8a512e2c46ddd323c473c21d130cedd90d69&summary")
+		response = requests.get(f"http://swan.dharma:54321/admin/api.php?auth={os.getenv('PIHOLE_KEY')}&summary")
 		response.raise_for_status()
 	except requests.HTTPError as http_err:
 		return None
@@ -28,6 +29,7 @@ def get_pihole():
 
 	return response.json()
 
+load_dotenv()
 
 pidata = get_pihole()
 
