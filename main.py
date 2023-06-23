@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-import os, sys, subprocess, requests, json, yaml
+import subprocess, requests, yaml
 
-from dotenv import load_dotenv
 from pysnmp.hlapi import *
 from PIL import Image, ImageFont, ImageDraw
 from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
-from font_intuitive import Intuitive
 from inky.auto import auto
 
 def read_config():
