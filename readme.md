@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/soup-bowl/swan-monitor/assets/11209477/66d4b37e-a73e-4afd-b589-c9f6e7ca97a3" alt="" />
+  <img src="https://github.com/soup-bowl/swan-monitor/assets/11209477/2ef83f8e-0a1f-4fa7-a863-c77a69ee1a2e" alt="" />
 </p>
 
 Simulate with
