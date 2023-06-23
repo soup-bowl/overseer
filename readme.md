@@ -5,5 +5,21 @@
 Simulate with
 
 ```bash
-python main.py --simulate --type phat --colour yellow
+python main.py --simulate --type phatssd1608 --colour yellow
 ```
+
+## Configuration Schema
+
+```yml
+name: Example Network
+stages:
+  - label: PiHole
+    type: pihole
+    address: "192.168.1.2"
+    auth: YourKeyForPiHoleAPI
+  - label: Server
+    type: isup
+    address: coolthing.com
+```
+
+Save as `configuration.yml` next to the **main.py**. 

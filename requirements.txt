@@ -12,6 +12,7 @@ pycryptodomex==3.18.0
 pysmi==0.3.4
 pysnmp==4.4.12
 python-dotenv==1.0.0
+PyYAML==6.0
 requests==2.31.0
 smbus2==0.4.2
 spidev==3.6
