@@ -54,40 +54,16 @@ for y in range(0, inky_display.height):
 	for x in range(0, inky_display.width):
 		img.putpixel((x, y), inky_display.BLACK)
 
-draw.text(
-	(2, (0 * 12)),
-	"LP Network Information",
-	inky_display.RED,
-	font=hanken_medium_font
-)
+draw.text((2, (0 * 12)), "LP Network Information", inky_display.RED, font=hanken_medium_font)
+draw.text((2, (1 * 12)), "Pi Firewall:", inky_display.WHITE, font=hanken_medium_font)
 
-draw.text(
-	(2, (1 * 12)),
-	f"Pi Firewall:",
-	inky_display.WHITE,
-	font=hanken_medium_font
-)
 if pidata is not None:
-	draw.text(
-		(72, (1 * 12)),
-		f"Block {format_number(pidata.get('ads_blocked_today'))}/{format_number(pidata.get('dns_queries_today'))}",
-		inky_display.WHITE,
-		font=hanken_medium_font
-	)
-
-	draw.text(
-		(72, (2 * 12)),
-		f"{pidata.get('ads_percentage_today')}% block rate",
-		inky_display.WHITE,
-		font=hanken_medium_font
-	)
+	blockrate = f"Block {format_number(pidata.get('ads_blocked_today'))}/{format_number(pidata.get('dns_queries_today'))}"
+	blocknum  = f"{pidata.get('ads_percentage_today')}% block rate"
+	draw.text((72, (1 * 12)), blockrate, inky_display.WHITE, font=hanken_medium_font)
+	draw.text((72, (2 * 12)), blocknum, inky_display.WHITE, font=hanken_medium_font)
 else:
-	draw.text(
-		(72, (1 * 12)),
-		f"OFFLINE",
-		inky_display.RED,
-		font=hanken_medium_font
-	)
+	draw.text((72, (1 * 12)), "OFFLINE", inky_display.RED, font=hanken_medium_font)
 
 inky_display.set_image(img)
 inky_display.show()
