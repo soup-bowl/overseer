@@ -57,7 +57,7 @@ draw = ImageDraw.Draw(img)
 
 scale_size = 1.30
 hanken_bold_font = ImageFont.truetype(HankenGroteskBold, int(13 * scale_size))
-hanken_medium_font = ImageFont.truetype(HankenGroteskMedium, int(13 * scale_size))
+hanken_medium_font = ImageFont.truetype(HankenGroteskBold, int(13 * scale_size))
 
 # Define parameters for boundaries and distances
 y_top = int(inky_display.height * (5.0 / 10.0))
