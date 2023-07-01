@@ -20,6 +20,10 @@ stages:
   - label: Server
     type: isup
     address: coolthing.com
+  - label: LinodeServer
+    type: linode
+    address: instance_id
+    auth: api_token
 ```
 
 Save as `configuration.yml` next to the **main.py**. 
