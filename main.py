@@ -8,12 +8,12 @@ from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
 from inky.auto import auto
 
 def read_config():
-    with open('configuration.yml', 'r') as file:
-        try:
-            data = yaml.safe_load(file)
-            return data
-        except yaml.YAMLError as e:
-            return None
+	with open('configuration.yml', 'r') as file:
+		try:
+			data = yaml.safe_load(file)
+			return data
+		except yaml.YAMLError as e:
+			return None
 
 def format_number(num):
 	num = num.replace(',', '')
@@ -26,14 +26,14 @@ def format_number(num):
 		return str(value)
 
 def is_device_online(ip_address):
-    command = ['ping', '-c', '1', ip_address]
-    try:
-        output = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
-        if '1 packets transmitted, 1 received' in output:
-            return True
-    except subprocess.CalledProcessError:
-        pass
-    return False
+	command = ['ping', '-c', '1', ip_address]
+	try:
+		output = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
+		if '1 packets transmitted, 1 received' in output:
+			return True
+	except subprocess.CalledProcessError:
+		pass
+	return False
 
 def get_pihole(host, key):
 	try:
@@ -45,6 +45,21 @@ def get_pihole(host, key):
 		return None
 
 	return response.json()
+
+def get_linode(instance, token):
+	try:
+		response = requests.get(f"https://api.linode.com/v4/linode/instances/{instance}", headers={
+			"Authorization": f"Bearer {token}",
+			"Content-Type": "application/json"
+		})
+		response.raise_for_status()
+	except requests.HTTPError as http_err:
+		return None
+	except Exception as err:
+		return None
+
+	data = response.json()
+	return data["specs"]
 
 config = read_config()
 
@@ -94,6 +109,22 @@ for stage in config['stages']:
 		else:
 			draw.text((x_barrier, (y_placement * y_spacer)), "OFFLINE", inky_display.RED, font=hanken_medium_font)
 			y_placement = y_placement + 1
+	elif stage['type'] == 'linode':
+		lindata = get_linode(stage['address'], stage['auth'])
+		print(f"Memory: {lindata['memory']} MB")
+		print(f"Storage: {lindata['disk']} GB")
+		print(f"vCPUs: {lindata['vcpus']}")
+		draw.text((2, (y_placement * y_spacer)), f"{stage['label']}:", inky_display.WHITE, font=hanken_medium_font)
+		if lindata is not None:
+			draw.text(
+				(x_barrier, (y_placement * y_spacer)),
+				f"Block {format_number(pidata.get('ads_blocked_today'))}/{format_number(pidata.get('dns_queries_today'))}",
+				inky_display.WHITE,
+				font=hanken_medium_font
+			)
+		else:
+			draw.text((x_barrier, (y_placement * y_spacer)), "OFFLINE", inky_display.RED, font=hanken_medium_font)
+		y_placement = y_placement + 2
 	elif stage['type'] == 'isup':
 		draw.text((2, (y_placement * y_spacer)), f"{stage['label']}:", inky_display.WHITE, font=hanken_medium_font)
 		if is_device_online(stage['address']):
