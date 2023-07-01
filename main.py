@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import subprocess, requests, yaml
+import subprocess, requests, yaml, time
 
 from pysnmp.hlapi import *
 from PIL import Image, ImageFont, ImageDraw
@@ -47,8 +47,9 @@ def get_pihole(host, key):
 	return response.json()
 
 def get_linode(instance, token):
+	# https://www.linode.com/docs/api/linode-instances/#linode-statistics-view
 	try:
-		response = requests.get(f"https://api.linode.com/v4/linode/instances/{instance}", headers={
+		response = requests.get(f"https://api.linode.com/v4/linode/instances/{instance}/stats", headers={
 			"Authorization": f"Bearer {token}",
 			"Content-Type": "application/json"
 		})
@@ -58,9 +59,7 @@ def get_linode(instance, token):
 	except Exception as err:
 		return None
 
-	data = response.json()
-	return data["specs"]
-
+	return response.json()
 config = read_config()
 
 inky_display = auto(ask_user=True)
@@ -111,20 +110,33 @@ for stage in config['stages']:
 			y_placement = y_placement + 1
 	elif stage['type'] == 'linode':
 		lindata = get_linode(stage['address'], stage['auth'])
-		print(f"Memory: {lindata['memory']} MB")
-		print(f"Storage: {lindata['disk']} GB")
-		print(f"vCPUs: {lindata['vcpus']}")
+
 		draw.text((2, (y_placement * y_spacer)), f"{stage['label']}:", inky_display.WHITE, font=hanken_medium_font)
 		if lindata is not None:
+			current   = time.time() * 1000
+			timeframe = current - (7 * 60 * 60 * 1000) # 7 hours ago
+
+			cpu_times  = [timestamp for timestamp, _ in lindata['data']['cpu'] if timestamp >= timeframe]
+			cpu_totals = sum(value for timestamp, value in lindata['data']['cpu'] if timestamp >= timeframe)
+			cpu_avg    = cpu_totals / len(cpu_times)
+
+			io_times  = [timestamp for timestamp, _ in lindata['data']['io']['io'] if timestamp >= timeframe]
+			io_totals = sum(value for timestamp, value in lindata['data']['io']['io'] if timestamp >= timeframe)
+			io_avg    = io_totals / len(io_times)
+
+			net_times  = [timestamp for timestamp, _ in lindata['data']['netv4']['out'] if timestamp >= timeframe]
+			net_totals = sum(value for timestamp, value in lindata['data']['netv4']['out'] if timestamp >= timeframe)
+			net_avg    = (net_totals / len(net_times)) / 1000
+
 			draw.text(
 				(x_barrier, (y_placement * y_spacer)),
-				f"Block {format_number(pidata.get('ads_blocked_today'))}/{format_number(pidata.get('dns_queries_today'))}",
+				f"c{cpu_avg:.2f}% d{io_avg:.2f} n{net_avg:.2f}K/s",
 				inky_display.WHITE,
 				font=hanken_medium_font
 			)
 		else:
 			draw.text((x_barrier, (y_placement * y_spacer)), "OFFLINE", inky_display.RED, font=hanken_medium_font)
-		y_placement = y_placement + 2
+		y_placement = y_placement + 1
 	elif stage['type'] == 'isup':
 		draw.text((2, (y_placement * y_spacer)), f"{stage['label']}:", inky_display.WHITE, font=hanken_medium_font)
 		if is_device_online(stage['address']):
