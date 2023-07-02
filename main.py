@@ -86,13 +86,14 @@ for stage in config['stages']:
 		else:
 			display.write_line(stage['label'], "ERROR", True)
 
-	if stage['type'] == 'pihole':
+	elif stage['type'] == 'pihole':
 		pidata = get_pihole(stage['address'], stage['auth'])
 		if pidata is not None:
 			display.write_line(stage['label'], f"Block {format_number(pidata.get('ads_blocked_today'))}/{format_number(pidata.get('dns_queries_today'))}")
 			display.write_line(None, f"{pidata.get('ads_percentage_today')}% blocked")
 		else:
 			display.write_line(stage['label'], "OFFLINE", True)
+
 	elif stage['type'] == 'linode':
 		lindata = get_linode(stage['address'], stage['auth'])
 
@@ -115,6 +116,7 @@ for stage in config['stages']:
 			display.write_line(stage['label'], f"c{cpu_avg:.2f}% d{io_avg:.2f} n{net_avg:.2f}K/s")
 		else:
 			display.write_line(stage['label'], "OFFLINE", True)
+
 	elif stage['type'] == 'isup':
 		if is_device_online(stage['address']):
 			display.write_line(stage['label'], "ONLINE")
