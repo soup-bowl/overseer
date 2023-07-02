@@ -1,7 +1,7 @@
-from pysnmp.hlapi import *
 from PIL import Image, ImageFont, ImageDraw
-from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
+from font_hanken_grotesk import HankenGroteskBold
 from inky.auto import auto
+
 
 class Display():
 	def __init__(self, title):
@@ -25,15 +25,15 @@ class Display():
 				self.img.putpixel((x, y), self.inky_display.BLACK)
 
 		self.draw.text((2, 0), title, self.inky_display.RED, font=self.hanken_bold_font)
-	
-	def write_line(self, title = None, text = None, color = False):
+
+	def write_line(self, title=None, text=None, color=False):
 		self.draw.text(
 			(2, (self.line * self.y_spacer)),
 			f"{title}:" if title is not None else "",
-			self.inky_display.WHITE, 
+			self.inky_display.WHITE,
 			font=self.hanken_medium_font
 		)
-		
+
 		self.draw.text(
 			(self.x_barrier, (self.line * self.y_spacer)),
 			text if text is not None else "",
