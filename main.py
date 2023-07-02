@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
 import subprocess, requests, yaml, time, paramiko
-
 from pysnmp.hlapi import *
-from PIL import Image, ImageFont, ImageDraw
-from font_hanken_grotesk import HankenGroteskBold, HankenGroteskMedium
-from inky.auto import auto
+from display import Display
 
 def read_config():
 	with open('configuration.yml', 'r') as file:
@@ -76,73 +73,29 @@ def get_ssh(server, user, key, command):
 		client.close()
 
 config = read_config()
+display = Display(config['name'])
 
-inky_display = auto(ask_user=True)
-inky_display.set_border(inky_display.BLACK)
-
-# Create a new canvas to draw on
-img = Image.new("P", inky_display.resolution)
-draw = ImageDraw.Draw(img)
-
-scale_size = 1.30
-hanken_bold_font = ImageFont.truetype(HankenGroteskBold, int(13 * scale_size))
-hanken_medium_font = ImageFont.truetype(HankenGroteskBold, int(13 * scale_size))
-
-# Define parameters for boundaries and distances
-y_top = int(inky_display.height * (5.0 / 10.0))
-y_bottom = y_top + int(inky_display.height * (4.0 / 10.0))
-x_barrier = 60
-y_spacer = 13
-
-# Make the background black
-for y in range(0, inky_display.height):
-	for x in range(0, inky_display.width):
-		img.putpixel((x, y), inky_display.BLACK)
-
-draw.text((2, 0), config['name'], inky_display.RED, font=hanken_bold_font)
-
-y_placement = 1
 for stage in config['stages']:
 	if stage['type'] == 'ssh':
 		data = get_ssh(stage['address'], stage['user'], stage['auth'], stage['command'])
-		draw.text((2, (y_placement * y_spacer)), f"{stage['label']}:", inky_display.WHITE, font=hanken_medium_font)
 		if data is not None:
 			text   = data.replace("\n", "")
 			prefix = stage['prefix'] if 'prefix' in stage else ''
 			suffix = stage['suffix'] if 'suffix' in stage else ''
-			draw.text(
-				(x_barrier, (y_placement * y_spacer)),
-				f"{prefix}{text}{suffix}",
-				inky_display.WHITE,
-				font=hanken_medium_font
-			)
+			display.write_line(stage['label'], f"{prefix}{text}{suffix}")
 		else:
-			draw.text((x_barrier, (y_placement * y_spacer)), "ERROR", inky_display.RED, font=hanken_medium_font)
-		y_placement = y_placement + 1
+			display.write_line(stage['label'], "ERROR", True)
+
 	if stage['type'] == 'pihole':
 		pidata = get_pihole(stage['address'], stage['auth'])
-		draw.text((2, (y_placement * y_spacer)), f"{stage['label']}:", inky_display.WHITE, font=hanken_medium_font)
 		if pidata is not None:
-			draw.text(
-				(x_barrier, (y_placement * y_spacer)),
-				f"Block {format_number(pidata.get('ads_blocked_today'))}/{format_number(pidata.get('dns_queries_today'))}",
-				inky_display.WHITE,
-				font=hanken_medium_font
-			)
-			draw.text(
-				(x_barrier, ((y_placement + 1) * y_spacer)),
-				f"{pidata.get('ads_percentage_today')}% blocked",
-				inky_display.WHITE,
-				font=hanken_medium_font
-			)
-			y_placement = y_placement + 2
+			display.write_line(stage['label'], f"Block {format_number(pidata.get('ads_blocked_today'))}/{format_number(pidata.get('dns_queries_today'))}")
+			display.write_line(None, f"{pidata.get('ads_percentage_today')}% blocked")
 		else:
-			draw.text((x_barrier, (y_placement * y_spacer)), "OFFLINE", inky_display.RED, font=hanken_medium_font)
-			y_placement = y_placement + 1
+			display.write_line(stage['label'], "OFFLINE", True)
 	elif stage['type'] == 'linode':
 		lindata = get_linode(stage['address'], stage['auth'])
 
-		draw.text((2, (y_placement * y_spacer)), f"{stage['label']}:", inky_display.WHITE, font=hanken_medium_font)
 		if lindata is not None:
 			current   = time.time() * 1000
 			timeframe = current - (7 * 60 * 60 * 1000) # 7 hours ago
@@ -159,22 +112,13 @@ for stage in config['stages']:
 			net_totals = sum(value for timestamp, value in lindata['data']['netv4']['out'] if timestamp >= timeframe)
 			net_avg    = (net_totals / len(net_times)) / 1000
 
-			draw.text(
-				(x_barrier, (y_placement * y_spacer)),
-				f"c{cpu_avg:.2f}% d{io_avg:.2f} n{net_avg:.2f}K/s",
-				inky_display.WHITE,
-				font=hanken_medium_font
-			)
+			display.write_line(stage['label'], f"c{cpu_avg:.2f}% d{io_avg:.2f} n{net_avg:.2f}K/s")
 		else:
-			draw.text((x_barrier, (y_placement * y_spacer)), "OFFLINE", inky_display.RED, font=hanken_medium_font)
-		y_placement = y_placement + 1
+			display.write_line(stage['label'], "OFFLINE", True)
 	elif stage['type'] == 'isup':
-		draw.text((2, (y_placement * y_spacer)), f"{stage['label']}:", inky_display.WHITE, font=hanken_medium_font)
 		if is_device_online(stage['address']):
-			draw.text((x_barrier, (y_placement * y_spacer)), "ONLINE", inky_display.WHITE, font=hanken_medium_font)
+			display.write_line(stage['label'], "ONLINE")
 		else:
-			draw.text((x_barrier, (y_placement * y_spacer)), "OFFLINE", inky_display.RED, font=hanken_medium_font)
-		y_placement = y_placement + 1
+			display.write_line(stage['label'], "OFFLINE", True)
 
-inky_display.set_image(img)
-inky_display.show()
+display.done()
