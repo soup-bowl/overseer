@@ -67,6 +67,34 @@ def get_linode(instance, token):
 	return response.json()
 
 
+def get_synology_nas(server, user, password):
+	try:
+		auth_response = requests.get(f"http://{server}/webapi/auth.cgi", {
+			'api': 'SYNO.API.Auth',
+			'version': 2,
+			'method': 'login',
+			'account': user,
+			'passwd': password,
+			'format': 'sid'
+		})
+		auth_response.raise_for_status()
+		auth = auth_response.json()['data']['sid']
+
+		data_response = requests.get(f"http://{server}/webapi/entry.cgi", {
+			'api': 'SYNO.Storage.CGI.Storage',
+			'version': 1,
+			'method': 'load_info',
+			'_sid': auth
+		})
+		data_response.raise_for_status()
+	except requests.HTTPError:
+		return None
+	except Exception:
+		return None
+
+	return data_response.json()
+
+
 def get_ssh(server, user, key, command):
 	client = paramiko.SSHClient()
 	client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -80,6 +108,21 @@ def get_ssh(server, user, key, command):
 		return None
 	finally:
 		client.close()
+
+
+def format_bytes(num):
+	units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+	i = 0
+
+	while num >= 1024 and i < len(units)-1:
+		num /= 1024
+		i += 1
+
+	formatted_num = '{:.2f}'.format(num)
+
+	result = f"{formatted_num} {units[i]}"
+
+	return result
 
 
 config = read_config()
@@ -109,6 +152,25 @@ for stage in config['stages']:
 				)
 			)
 			display.write_line(None, f"{pidata.get('ads_percentage_today')}% blocked")
+		else:
+			display.write_line(stage['label'], "OFFLINE", True)
+
+	elif stage['type'] == 'synology':
+		data = get_synology_nas(stage['address'], stage['user'], stage['auth'])
+
+		if data is not None:
+			total_volume = 0
+			used_volume = 0
+			for volume in data['data']['volumes']:
+				total_volume += int(volume['size']['total'])
+				used_volume += int(volume['size']['used'])
+
+			percentage_used = (used_volume / total_volume) * 100
+
+			display.write_line(
+				stage['label'],
+				f"{format_bytes(used_volume)} / {format_bytes(total_volume)} ({percentage_used:.0f}%)"
+			)
 		else:
 			display.write_line(stage['label'], "OFFLINE", True)
 

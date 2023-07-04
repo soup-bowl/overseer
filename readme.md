@@ -24,6 +24,11 @@ stages:
     type: linode
     address: instance_id
     auth: api_token
+  - label: NAS
+    type: synology
+    address: 192.168.1.5:5000
+    user: api
+    auth: api_token
 ```
 
 Save as `configuration.yml` next to the **main.py**. 
