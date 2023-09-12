@@ -8,8 +8,9 @@ from pimoroni import Button
 import jpegdec
 import random
 
-from display import Display
-from remote import Remote
+from utils.display import Display
+from utils.remote import Remote
+from utils.process import Process
 
 pico_screen = Display()
 
@@ -21,21 +22,6 @@ uasyncio.get_event_loop().run_until_complete(network_manager.client(CONFIG.WIFI_
 button_a = Button(12)
 button_b = Button(13)
 button_c = Button(14)
-
-def format_bytes(num):
-    units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-    i = 0
-
-    while num >= 1024 and i < len(units)-1:
-        num /= 1024
-        i += 1
-
-    formatted_num = '{:.2f}'.format(num)
-
-    result = f"{formatted_num} {units[i]}"
-
-    return result
-
 
 # set up
 pico_screen.quick_text("Ready")
@@ -99,11 +85,8 @@ while True:
                 # ---
                 pihole = Remote.get_pihole()
                 if pihole is not None:
-                    pico_screen.write_line(
-                        "PiHole",
-                        f"Block {pihole['ads_blocked_today']}/{pihole['dns_queries_today']}"
-                    )
-                    pico_screen.write_line("", f"{pihole['ads_percentage_today']}% blocked")
+                    data = Process.display_block_data(pihole)
+                    pico_screen.write_line("PiHole", data)
                 else:
                     pico_screen.write_line("PiHole", "OFFLINE", 10)
                 # ---
@@ -112,18 +95,7 @@ while True:
                 # ---
                 synnas = Remote.get_synology_nas()
                 if synnas is not None and 'data' in synnas:
-                    total_volume = 0
-                    used_volume = 0
-                    for volume in synnas['data']['volumes']:
-                        total_volume += int(volume['size']['total'])
-                        used_volume += int(volume['size']['used'])
-
-                    percentage_used = (used_volume / total_volume) * 100
-
-                    pico_screen.write_line(
-                        "NAS",
-                        f"{format_bytes(used_volume)} / {format_bytes(total_volume)} ({percentage_used:.0f}%)"
-                    )
+                    pico_screen.write_line("NAS", Process.display_nas_data(synnas['data']['volumes']))
                 else:
                     pico_screen.write_line("NAS", "OFFLINE", 10)
                 # ---

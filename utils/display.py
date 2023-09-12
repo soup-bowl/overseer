@@ -40,10 +40,14 @@ class Display:
         self.display.update()
 
     def write_line(self, title, text, color = 15):
-        self.display.set_pen(15)
-        self.display.text(title, 2, (self.line * self.y_spacer), 240, 2, 0, True)
-        self.display.set_pen(color)
-        self.display.text(text, self.x_barrier, (self.line * self.y_spacer), 240, 2, 0, True)
+        processtext = text if type(text) == list else [text]
         
-        self.line = self.line + 1
-    
+        count = 0
+        for text_line in processtext:
+            self.display.set_pen(15)
+            self.display.text(title if count is 0 else "", 2, (self.line * self.y_spacer), 240, 2, 0, True)
+            self.display.set_pen(color)
+            self.display.text(text_line, self.x_barrier, (self.line * self.y_spacer), 240, 2, 0, True)
+            
+            self.line += 1
+            count += 1
