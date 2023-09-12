@@ -15,6 +15,12 @@ class Process:
             f"Block {block_data['ads_blocked_today']}/{block_data['dns_queries_today']}",
             f"{block_data['ads_percentage_today']}% blocked"
         ]
+    
+    def display_prometheus_details(cpu_alloc, ram_alloc, cpu_temp):
+        cpu = '{:.0f}'.format(float(cpu_alloc[0]['value'][1]))
+        ram = '{:.0f}'.format(float(ram_alloc[0]['value'][1]))
+        tmp = '{:.0f}'.format(float(cpu_temp[0]['value'][1]))
+        return f"C: {cpu}% R: {ram}% T: {tmp}C";
 
     def _format_bytes(num):
         units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']

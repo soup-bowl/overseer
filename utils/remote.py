@@ -58,5 +58,17 @@ class Remote:
             return None
 
         return data_data
+    
+    def get_prometheus(query):
+        try:
+            url = f"{CONFIG.PROM_SVR}/api/v1/query?query={query}"
+            response = urllib_request.urlopen(url)
+            response_data = response.read()
+            response.close()
+        except Exception as e:
+            print("Exception:", e)
+            return None
 
+        print("Requesting URL: {}".format(url))
+        return ujson.loads(response_data)
 

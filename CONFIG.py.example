@@ -8,3 +8,5 @@ PIHOLE_KEY = ""
 SYN_HOST = ""
 SYN_USER = ""
 SYN_PASS = ""
+
+PROM_SVR = ""

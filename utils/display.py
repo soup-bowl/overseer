@@ -6,7 +6,7 @@ class Display:
         self.display.set_update_speed(2)
         self.display.set_font("bitmap8")
         self.line = 1
-        self.x_barrier = 80
+        self.x_barrier = 70
         self.y_spacer = 16
     
     # display.set_pen(15) is white and display.set_pen(0) is black
