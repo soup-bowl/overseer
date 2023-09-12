@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 
 # Others
-configuration.yml
+CONFIG.py
+WIFI_CONFIG.py

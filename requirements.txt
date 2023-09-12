@@ -1,9 +1,0 @@
-font-hanken-grotesk==0.0.2
-inky==1.5.0
-numpy==1.25.0
-paramiko==3.2.0
-Pillow==9.5.0
-pysnmp==4.4.12
-PyYAML==6.0
-requests==2.31.0
-urllib3==2.0.3
