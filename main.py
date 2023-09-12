@@ -103,18 +103,25 @@ while True:
                 # Precision 7710
                 # ---
                 job = "7710"
-                cpu_aloc = Remote.get_prometheus("100%20-%20(avg%20by%20(mode)%20(irate(node_cpu_seconds_total%7Bmode%3D%22idle%22%2Cjob%3D%22" + job + "%22%7D%5B5m%5D))%20*%20100)%0A")
-                ram_aloc = Remote.get_prometheus("100%20-%20((node_memory_MemAvailable_bytes%7Bjob%3D%22" + job + "%22%7D%20%2F%20node_memory_MemTotal_bytes%7Bjob%3D%22" + job + "%22%7D)%20*%20100)%0A")
-                cpu_temp = Remote.get_prometheus("avg(node_hwmon_temp_celsius%7Bchip%3D%22platform_coretemp_0%22%2Cjob%3D%22" + job + "%22%2Csensor%3D~%22temp%5B1-5%5D%22%7D)")
+                try:
+                    cpu_aloc = Remote.get_prometheus("100%20-%20(avg%20by%20(mode)%20(irate(node_cpu_seconds_total%7Bmode%3D%22idle%22%2Cjob%3D%22" + job + "%22%7D%5B5m%5D))%20*%20100)%0A")
+                    ram_aloc = Remote.get_prometheus("100%20-%20((node_memory_MemAvailable_bytes%7Bjob%3D%22" + job + "%22%7D%20%2F%20node_memory_MemTotal_bytes%7Bjob%3D%22" + job + "%22%7D)%20*%20100)%0A")
+                    cpu_temp = Remote.get_prometheus("avg(node_hwmon_temp_celsius%7Bchip%3D%22platform_coretemp_0%22%2Cjob%3D%22" + job + "%22%2Csensor%3D~%22temp%5B1-5%5D%22%7D)")
+                except:
+                    cpu_aloc = None
+                    ram_aloc = None
+                    cpu_temp = None
                 if cpu_aloc is not None and cpu_temp is not None and ram_aloc is not None:
-                    if 'data' in cpu_aloc and 'result' in cpu_aloc['data'] and isinstance(cpu_aloc['data']['result'], list) and len(cpu_aloc['data']['result']) > 0:
+                    if ('data' in cpu_aloc and 'result' in cpu_aloc['data'] and isinstance(cpu_aloc['data']['result'], list) and len(cpu_aloc['data']['result']) > 0
+                    and 'data' in cpu_temp and 'result' in cpu_temp['data'] and isinstance(cpu_temp['data']['result'], list) and len(cpu_temp['data']['result']) > 0
+                    and 'data' in ram_aloc and 'result' in ram_aloc['data'] and isinstance(ram_aloc['data']['result'], list) and len(ram_aloc['data']['result']) > 0):
                         pico_screen.write_line("7710", Process.display_prometheus_details(
                             cpu_aloc['data']['result'],
                             ram_aloc['data']['result'],
                             cpu_temp['data']['result'])
                         )
                     else:
-                        pico_screen.write_line("7710", "OFFLINE", 10)
+                        pico_screen.write_line("7710", "NO DATA", 10)
                 else:
                     pico_screen.write_line("7710", "OFFLINE", 10)
                 # ---
@@ -125,3 +132,4 @@ while True:
 
             time.sleep(0.1)
     time.sleep(0.1)
+
