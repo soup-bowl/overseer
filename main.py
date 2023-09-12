@@ -33,10 +33,10 @@ while True:
     if button_a.read():
         pico_screen.inform_loading()
         pico_screen.clear()
-        
+
         FILENAME = "placekitten.jpg"
         ENDPOINT = "http://placekitten.com/{0}/{1}"
-        
+
         url = ENDPOINT.format(WIDTH, HEIGHT + random.randint(0, 10))
         print("Requesting URL: {}".format(url))
         socket = urequest.urlopen(url)
@@ -57,18 +57,18 @@ while True:
         pico_screen.display.text(url, 5, HEIGHT - 9, scale=1)
 
         pico_screen.commit()
-        
+
         time.sleep(0.5)
     elif button_b.read():
         pico_screen.inform_loading()
         pico_screen.clear()
-        
+
         jpeg = jpegdec.JPEG(pico_screen.display)
         jpeg.open_file("fine.jpg")
         jpeg.decode()
-        
+
         pico_screen.commit()
-        
+
         time.sleep(0.5)
     elif button_c.read():
         start_time = utime.time() + 350 # Invalidate the first run - cheap trick.
@@ -76,11 +76,11 @@ while True:
         while True:
             if button_a.is_pressed or button_b.is_pressed:
                     break
-            
-            if abs(start_time - utime.time()) > 300: 
+
+            if abs(start_time - utime.time()) > 300:
                 pico_screen.inform_loading()
                 pico_screen.clear(True)
-                
+
                 # PiHole Display
                 # ---
                 pihole = Remote.get_pihole()
@@ -90,7 +90,7 @@ while True:
                 else:
                     pico_screen.write_line("PiHole", "OFFLINE", 10)
                 # ---
-                
+
                 # Synology NAS
                 # ---
                 synnas = Remote.get_synology_nas()
@@ -99,7 +99,7 @@ while True:
                 else:
                     pico_screen.write_line("NAS", "OFFLINE", 10)
                 # ---
-                
+
                 # Precision 7710
                 # ---
                 job = "7710"
@@ -118,13 +118,10 @@ while True:
                 else:
                     pico_screen.write_line("7710", "OFFLINE", 10)
                 # ---
-                    
+
                 pico_screen.commit()
-                
+
                 start_time = utime.time()
 
             time.sleep(0.1)
     time.sleep(0.1)
-
-
-
