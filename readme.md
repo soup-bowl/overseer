@@ -13,7 +13,7 @@ Copy the `utils` and `.py` files to the root of the Raspberry Pi Pico, when in M
 
 ## Configuration
 
-Configuration is done via a JSON file. An example file is found in the repository with configuration needs specified.
+Configuration is done via a JSON file. [An example file is found in the repository](/config.json.example) with configuration needs specified.
 
 The system supports the following displays for the network monitor screen:
 
