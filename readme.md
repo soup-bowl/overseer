@@ -7,8 +7,16 @@ Uses a **[Raspberry Pi Pico W](https://www.raspberrypi.com/products/raspberry-pi
 
 ## Execution 
 
-TODO
+Copy the `utils` and `.py` files to the root of the Raspberry Pi Pico, when in MicroPython mode and connected using Thonny, or another way to access the ttyACM0.
+
+`urllib` will also need to be installed via Thonny or mip.
 
 ## Configuration
 
-TODO
+Configuration is done via a JSON file. An example file is found in the repository with configuration needs specified.
+
+The system supports the following displays for the network monitor screen:
+
+* Pihole view - Displays block count & percentage.
+* Synology NAS - Displays overall storage utilisation & percentage.
+* Prometheus - Gets information for a job (user in config) and shows CPU & RAM utilisation, and temperature.
