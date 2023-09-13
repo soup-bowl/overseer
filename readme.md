@@ -1,7 +1,9 @@
 <h1 align="center">Overseer</h1>
 <p align="center">
-  <img src="https://i.imgflip.com/1neqb1.jpg" alt="RIP :'(" />
+  <img src="https://github.com/soup-bowl/overseer/assets/11209477/59c0fc8f-0725-4775-bc2c-4e0891a47236" alt="" />
 </p>
+
+
 
 Uses a **[Raspberry Pi Pico W](https://www.raspberrypi.com/products/raspberry-pi-pico/)** and a **Pimoroni [Inky Pack](https://shop.pimoroni.com/products/pico-inky-pack?variant=40044626051155)** to display on a wall-mounted Raspberry Pi to show select statistics from network and server resources.
 
