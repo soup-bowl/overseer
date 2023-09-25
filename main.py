@@ -7,6 +7,7 @@ import json
 from pimoroni import Button
 import jpegdec
 import random
+import usocket as socket
 
 from utils.display import Display
 from utils.remote import Remote
@@ -66,7 +67,7 @@ def display_info(conf):
 
 
 # set up
-pico_screen.quick_text("Ready")
+pico_screen.quick_text("Ready\nA: ???\nB: HTTP Mode\nC: Config Mode")
 time.sleep(0.5)
 
 print("Ready for input!")
@@ -102,14 +103,61 @@ while True:
 
         time.sleep(0.5)
     elif button_b.read():
-        pico_screen.inform_loading()
-        pico_screen.clear()
+        pico_screen.quick_text(f"Waiting for input\n{network_manager.ifaddress()}")
 
-        jpeg = jpegdec.JPEG(pico_screen.display)
-        jpeg.open_file("fine.jpg")
-        jpeg.decode()
+        addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+        s = socket.socket()
+        s.bind(addr)
+        s.listen(1)
+        print('listening on', addr)
 
-        pico_screen.commit()
+        while True:
+            if button_a.is_pressed or button_c.is_pressed:
+                    break
+
+            try:
+                cl, addr = s.accept()
+                print('client connected from', addr)
+                request = cl.recv(1024)
+                print("Response was:", request)
+                request = str(request, 'utf-8')
+
+                if "POST /" in request:
+                    json_start = request.find('{')
+                    json_end = request.rfind('}')
+                    if json_start != -1 and json_end != -1:
+                        json_data = request[json_start:json_end + 1]
+                        #print("Received JSON data:", json_data)
+
+                        try:
+                            data = json.loads(json_data)
+                            print("Parsed JSON data:", data)
+
+                            # Process screen with input data.
+                            pico_screen.inform_loading()
+                            pico_screen.clear(True)
+
+                            for entries in data['data']:
+                                for i, entry in enumerate(entries['content']):
+                                    pico_screen.write_line(entries['title'] if i == 0 else '', entry)
+
+                            pico_screen.commit()
+
+                        except Exception as e:
+                            print("Error parsing JSON data:", e)
+
+                    response = 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
+                else:
+                    response = 'HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n'
+
+                # Create and send a response
+
+                cl.send(response)
+                cl.close()
+
+            except OSError as e:
+                cl.close()
+                print('connection closed')
 
         time.sleep(0.5)
     elif button_c.read():
