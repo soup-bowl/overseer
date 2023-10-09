@@ -4,26 +4,5 @@
 		"ssid": "",
 		"psk": "",
 		"country": "GB"
-	},
-    "stages": [
-        {
-            "label": "Pihole",
-            "type": "pihole",
-            "address": "",
-            "auth": ""
-        },
-        {
-            "label": "NAS",
-            "type": "synology",
-            "address": "",
-            "user": "",
-            "auth": ""
-        },
-		{
-            "label": "Server",
-            "type": "prometheus",
-            "address": "http://example.com:9090",
-            "user": "job"
-        }
-    ]
+	}
 }
