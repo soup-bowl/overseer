@@ -15,4 +15,3 @@ class Time:
             return formatted_time
         except:
             return "Error"
-        

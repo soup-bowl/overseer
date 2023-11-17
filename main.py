@@ -1,25 +1,17 @@
 from network_manager import NetworkManager
 import uasyncio
 import json
-from pimoroni import Button
 import usocket as socket
 
 from utils.display import Display
 
 conf = json.load(open('config.json'))
-
-pico_screen = Display(dark_mode=conf['dark'])
-
-WIDTH, HEIGHT = pico_screen.display.get_bounds()
+disp = Display(dark_mode=conf['dark'])
 
 network_manager = NetworkManager(conf['network']['country'])
 uasyncio.get_event_loop().run_until_complete(network_manager.client(conf['network']['ssid'], conf['network']['psk']))
 
-button_a = Button(12)
-button_b = Button(13)
-button_c = Button(14)
-
-pico_screen.quick_text(f"Waiting for input\n{network_manager.ifaddress()}")
+disp.quick_text(f"Waiting for input\n{network_manager.ifaddress()}")
 
 addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
 s = socket.socket()
@@ -46,16 +38,16 @@ while True:
                     print("Parsed JSON data:", data)
 
                     # Process screen with input data.
-                    pico_screen.inform_loading()
-                    pico_screen.clear()
+                    disp.inform_loading()
+                    disp.clear()
 
-                    pico_screen.write_timestamp()
+                    disp.write_timestamp()
 
                     for entries in data['data']:
                         for i, entry in enumerate(entries['content']):
-                            pico_screen.write_line(entries['title'] if i == 0 else '', entry)
+                            disp.write_line(entries['title'] if i == 0 else '', entry)
 
-                    pico_screen.commit()
+                    disp.commit()
 
                 except Exception as e:
                     print("Error parsing JSON data:", e)

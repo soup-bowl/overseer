@@ -44,7 +44,7 @@ class Display:
 
     def write_timestamp(self):
         self.display.set_pen(self.foreground)
-        self.display.text(Time.get(), 4, 4, scale=1)  
+        self.display.text(Time.get(), 4, 4, scale=1)
 
     def write_line(self, title, text, color = 15):
         processtext = text if type(text) == list else [text]
