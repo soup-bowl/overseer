@@ -9,6 +9,11 @@ Uses a **[Raspberry Pi Pico W](https://www.raspberrypi.com/products/raspberry-pi
 
 Copy the `utils` and `.py` files to the root of the Raspberry Pi Pico, when in MicroPython mode and connected using Thonny, or another way to access the ttyACM0.
 
+This depends on:
+
+* urllib
+* ntptime
+
 ## Configuration
 
 Configuration is done via a JSON file. [An example file is found in the repository](/config.json.example) with configuration needs specified.
