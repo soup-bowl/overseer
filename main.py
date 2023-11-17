@@ -49,6 +49,8 @@ while True:
                     pico_screen.inform_loading()
                     pico_screen.clear(True)
 
+                    pico_screen.write_timestamp()
+
                     for entries in data['data']:
                         for i, entry in enumerate(entries['content']):
                             pico_screen.write_line(entries['title'] if i == 0 else '', entry)
@@ -59,6 +61,9 @@ while True:
                     print("Error parsing JSON data:", e)
 
             response = 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
+        elif "GET / " in request or "GET / HTTP" in request:
+            response = 'HTTP/1.0 200 OK\r\nContent-type: application/json\r\n\r\n'
+            response += json.dumps({"message": "online"})
         else:
             response = 'HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n'
 
