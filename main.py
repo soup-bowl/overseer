@@ -8,7 +8,7 @@ from utils.display import Display
 
 conf = json.load(open('config.json'))
 
-pico_screen = Display()
+pico_screen = Display(dark_mode=True)
 
 WIDTH, HEIGHT = pico_screen.display.get_bounds()
 
@@ -47,7 +47,7 @@ while True:
 
                     # Process screen with input data.
                     pico_screen.inform_loading()
-                    pico_screen.clear(True)
+                    pico_screen.clear()
 
                     pico_screen.write_timestamp()
 
