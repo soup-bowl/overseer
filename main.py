@@ -8,7 +8,7 @@ from utils.display import Display
 
 conf = json.load(open('config.json'))
 
-pico_screen = Display(dark_mode=True)
+pico_screen = Display(dark_mode=conf['dark'])
 
 WIDTH, HEIGHT = pico_screen.display.get_bounds()
 

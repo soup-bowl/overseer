@@ -1,5 +1,6 @@
 {
     "name": "Network",
+	"dark": false,
 	"network": {
 		"ssid": "",
 		"psk": "",
