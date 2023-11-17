@@ -4,6 +4,7 @@ import json
 import usocket as socket
 
 from utils.display import Display
+from utils.nettime import Time
 
 conf = json.load(open('config.json'))
 disp = Display(dark_mode=conf['dark'])
@@ -41,7 +42,11 @@ while True:
                     disp.inform_loading()
                     disp.clear()
 
-                    disp.write_timestamp()
+                    disp.write_info([
+                        "Monitor",
+                        addr[0],
+                        Time.get(),
+                    ])
 
                     for entries in data['data']:
                         for i, entry in enumerate(entries['content']):

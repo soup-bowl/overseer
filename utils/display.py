@@ -1,4 +1,3 @@
-from utils.nettime import Time
 from picographics import PicoGraphics, DISPLAY_INKY_PACK
 
 class Display:
@@ -41,10 +40,11 @@ class Display:
         self.display.set_pen(self.foreground)
         self.display.text(text, 10, 10, 240, 3)
         self.display.update()
-
-    def write_timestamp(self):
+    
+    def write_info(self, items):
+        text =  " - ".join(items)
         self.display.set_pen(self.foreground)
-        self.display.text(Time.get(), 4, 4, scale=1)
+        self.display.text(text, 4, 4, scale=1)
 
     def write_line(self, title, text, color = 15):
         processtext = text if type(text) == list else [text]
