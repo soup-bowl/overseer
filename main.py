@@ -2,6 +2,7 @@ from network_manager import NetworkManager
 import uasyncio
 import json
 import usocket as socket
+from umqtt.simple import MQTTClient
 
 from utils.display import Display
 from utils.nettime import Time
@@ -14,60 +15,36 @@ uasyncio.get_event_loop().run_until_complete(network_manager.client(conf['networ
 
 disp.quick_text(f"Waiting for input\n{network_manager.ifaddress()}")
 
-addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-s = socket.socket()
-s.bind(addr)
-s.listen(1)
-print('listening on', addr)
+# Callback for handling received messages
+def on_message(topic, msg):
+    print("Received message:", msg.decode('utf8'))
+    data = json.loads(msg.decode('utf8'))
+    disp.inform_loading()
+    disp.clear()
+
+    disp.write_info([
+        conf['name'],
+        network_manager.ifaddress(),
+        Time.get(),
+    ])
+
+    for entries in data['data']:
+        for i, entry in enumerate(entries['content']):
+            disp.write_line(entries['title'] if i == 0 else '', entry)
+
+    disp.commit()
+
+mqtt_client = MQTTClient(conf['mqtt']['client'], conf['mqtt']['address'], port=1883)
+mqtt_client.connect()
+mqtt_client.set_callback(on_message)
+mqtt_client.subscribe(conf['mqtt']['topic'])
 
 while True:
     try:
-        cl, addr = s.accept()
-        print('client connected from', addr)
-        request = cl.recv(1024)
-        print("Response was:", request)
-        request = str(request, 'utf-8')
-
-        if "POST /" in request:
-            json_start = request.find('{')
-            json_end = request.rfind('}')
-            if json_start != -1 and json_end != -1:
-                json_data = request[json_start:json_end + 1]
-
-                try:
-                    data = json.loads(json_data)
-                    print("Parsed JSON data:", data)
-
-                    # Process screen with input data.
-                    disp.inform_loading()
-                    disp.clear()
-
-                    disp.write_info([
-                        "Monitor",
-                        addr[0],
-                        Time.get(),
-                    ])
-
-                    for entries in data['data']:
-                        for i, entry in enumerate(entries['content']):
-                            disp.write_line(entries['title'] if i == 0 else '', entry)
-
-                    disp.commit()
-
-                except Exception as e:
-                    print("Error parsing JSON data:", e)
-
-            response = 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
-        elif "GET / " in request or "GET / HTTP" in request:
-            response = 'HTTP/1.0 200 OK\r\nContent-type: application/json\r\n\r\n'
-            response += json.dumps({"message": "online"})
-        else:
-            response = 'HTTP/1.0 501 Not Implemented\r\nContent-type: text/html\r\n\r\n'
-
-        cl.send(response)
-        cl.close()
+        mqtt_client.check_msg()
 
     except OSError as e:
         cl.close()
         print('connection closed')
 
+mqtt_client.disconnect()

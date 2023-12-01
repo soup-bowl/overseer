@@ -5,5 +5,10 @@
 		"ssid": "",
 		"psk": "",
 		"country": "GB"
+	},
+	"mqtt": {
+		"address": "localhost",
+		"client": "PanelForMQTT",
+		"topic": "data/panel"
 	}
 }
