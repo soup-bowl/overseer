@@ -12,6 +12,7 @@ Copy the `utils` and `.py` files to the root of the Raspberry Pi Pico, when in M
 This depends on:
 
 * ntptime
+* micropython-umqtt.simple
 
 ## Configuration
 
